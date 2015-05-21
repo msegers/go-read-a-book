@@ -23,14 +23,14 @@ func Stats(w http.ResponseWriter, r *http.Request) {
     warningsLen := 0
 
     dat["total"] = int(len(store.WM))
-    highestWords, err := HighestWords(n) //slice it!
+    highestWords, err := HighestWords(n)
 
     if err != nil {
         warningsLen ++
         warnings[warningsLen] = err.Error()
     }
 
-    highestChars, err := HighestChars(n) //slice this one too!
+    highestChars, err := HighestChars(n)
 
     if err != nil {
         warningsLen ++
