@@ -9,7 +9,6 @@ import (
     "github.com/go-read-a-book/store"
     "sync"
     "fmt"
-    "time"
 )
 
 var regAlphaWhitespace *regexp.Regexp
