@@ -7,12 +7,17 @@ import (
     "regexp"
     "log"
     "github.com/go-read-a-book/store"
+    "sync"
+    "fmt"
+    "time"
 )
 
 var regAlphaWhitespace *regexp.Regexp
 var regAlpha *regexp.Regexp
+var l sync.Mutex
 
 func init() {
+
     //create regex to get only chars & whitespaces/newlines
     rW, err := regexp.Compile("[^a-z\\s]+")
     if err != nil {
@@ -30,20 +35,26 @@ func init() {
 
 //web rest endpoint
 func WordsAndChars(w http.ResponseWriter, r *http.Request) {
-    go parseBody(r)
-}
-
-//just so we can wrap it in a goroutine
-func parseBody(r *http.Request) {
-    bytes, err := ioutil.ReadAll(r.Body);
+    bytes, err := ioutil.ReadAll(r.Body)
 
     if err == nil {
-        ReadWordsAndCharsFrom(bytes)
+        go ReadWordsAndCharsFrom(bytes)
+    } else {
+        fmt.Println("could not read body")
+        fmt.Println(err.Error())
     }
 }
 
 //actual reading code
+//I normally don't like printing debug code but since it' a trial thingy I left it in.
 func ReadWordsAndCharsFrom(bytes []byte) {
+    fmt.Println("Enter read")
+    l.Lock()
+    fmt.Println("in lock")
+    //can use this for testing, I have no clue how to test this using automated testing I'm afraid.
+    //I did use PostMan to post multiple items
+    //time.Sleep(time.Second * 5)
+
     str := string(bytes)
     //only store lowercase
     str = regAlphaWhitespace.ReplaceAllString(strings.ToLower(str), "")
@@ -65,4 +76,6 @@ func ReadWordsAndCharsFrom(bytes []byte) {
             store.CM[char] ++
         }
     }
+    l.Unlock()
+    fmt.Println("done with read")
 }

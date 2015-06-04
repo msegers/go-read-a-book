@@ -6,7 +6,6 @@ import (
     "github.com/go-read-a-book/valsorter"
     "github.com/go-read-a-book/store"
     "encoding/json"
-    "errors"
 )
 
 func Stats(w http.ResponseWriter, r *http.Request) {
@@ -23,23 +22,25 @@ func Stats(w http.ResponseWriter, r *http.Request) {
     warningsLen := 0
 
     dat["total"] = int(len(store.WM))
-    highestWords, err := HighestWords(n) //slice it!
+    highestWords, war := HighestWords(n) //slice it!
 
-    if err != nil {
-        warningsLen ++
-        warnings[warningsLen] = err.Error()
+    if war != "" {
+        warnings[warningsLen] = war
+        warningsLen += 1
     }
 
-    highestChars, err := HighestChars(n) //slice this one too!
+    highestChars, war := HighestChars(n) //slice this one too!
 
-    if err != nil {
-        warningsLen ++
-        warnings[warningsLen] = err.Error()
+    if war != "" {
+        warnings[warningsLen] = war
+        warningsLen += 1
     }
 
     dat[fmt.Sprint("top_", n ,"_words")] = highestWords
     dat[fmt.Sprint("top_", n ,"_letters")] = highestChars
-
+    if warningsLen > 0 {
+        dat["warnings"] = warnings
+    }
     j, err := json.Marshal(dat)
 
     if (err == nil) {
@@ -50,15 +51,15 @@ func Stats(w http.ResponseWriter, r *http.Request) {
     }
 }
 
-func HighestWords(n int) ([]string, error) {
+func HighestWords(n int) ([]string, string) {
     wSorter := valsorter.NewValSorter(store.WM)
-    warning := nil
+    warning := ""
 
     wn := len(store.WM)
     if (wn > n) {
         wn = n
     } else if (wn != n) {
-        warning = errors.New(fmt.Sprint("Could not get ", n , " words, only  ", wn, " available"))
+        warning = fmt.Sprint("Could not get ", n , " words, only  ", wn, " available")
     }
 
     topWords := make([]string, wn)
@@ -72,15 +73,15 @@ func HighestWords(n int) ([]string, error) {
     return topWords, warning
 }
 
-func HighestChars(n int) ([]string, error) {
+func HighestChars(n int) ([]string, string) {
     wSorter := valsorter.NewValSorter(store.CM)
-    warning := nil
+    warning := ""
 
     cn := len(store.CM)
     if (cn > n) {
         cn = n
     } else if (cn != n) {
-        warning = errors.New(fmt.Sprint("Could not get ", n , " chars, only  ", cn, " available"))
+        warning = fmt.Sprint("Could not get ", n , " chars, only  ", cn, " available")
     }
 
     topChars := make([]string, cn)
