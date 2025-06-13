@@ -1,5 +1,8 @@
 # Go-read-a-book
 
+> Note
+> This was a simple, project I did as part as an interview, at the time of writing the code (and now honestly) I've been a beginner with Go.
+
 A simple project which compiles an application which can read data from any posted string. Can be quite long.
 By default you can post this data to localhost:5555, or you can set the port when starting up by adding a -tport flag.
 
